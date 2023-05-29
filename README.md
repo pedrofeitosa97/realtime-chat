@@ -11,6 +11,7 @@ npm install
 ````
 <br>
 Com isso feito, para rodar sua aplicação, basta utilizar o comando
+
 ````
 npm run dev
 ````
