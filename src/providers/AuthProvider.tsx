@@ -1,8 +1,10 @@
-import { ReactNode, createContext } from 'react'
+import { ReactNode, createContext, useState } from 'react'
 import { LoginData } from '../pages/Login/validator'
 import api from '../services/api'
 import { useNavigate } from 'react-router-dom'
 import { registerData } from '../pages/Register/validator'
+import { io } from 'socket.io-client'
+import { useRequests } from '../hooks/useRequests'
 
 type AuthProviderProps = {
   children: ReactNode
@@ -11,6 +13,8 @@ type AuthProviderProps = {
 type AuthContextValues = {
   signIn: (data: LoginData) => void
   registerIn: (data: registerData) => void
+  socketState: any
+  setSocketState: React.Dispatch<React.SetStateAction<null>>
 }
 
 export const AuthContext = createContext<AuthContextValues>(
@@ -19,6 +23,9 @@ export const AuthContext = createContext<AuthContextValues>(
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
   const navigate = useNavigate()
+  const { getCurrentUserRequest } = useRequests()
+  const [socketState, setSocketState] = useState(null)
+
   const signIn = async (data: LoginData) => {
     try {
       const response = await api.post('/login', data)
@@ -27,6 +34,10 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
       api.defaults.headers.common.authorization = `Bearer ${token}`
       localStorage.setItem('realtimechat:token', token)
       navigate('/dashboard')
+      const socket: any = io('http://localhost:3000')
+      await socket.connect()
+      socket.emit('set_username', getCurrentUserRequest())
+      setSocketState(socket)
     } catch (error) {
       console.error(error)
     }
@@ -42,7 +53,9 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   }
 
   return (
-    <AuthContext.Provider value={{ signIn, registerIn }}>
+    <AuthContext.Provider
+      value={{ signIn, registerIn, socketState, setSocketState }}
+    >
       {children}
     </AuthContext.Provider>
   )
