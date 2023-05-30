@@ -46,12 +46,12 @@ const Register = () => {
           />
         </label>
 
-        <label htmlFor="photoURL">
+        <label htmlFor="photo">
           <input
             type="text"
-            id="photoURL"
+            id="photo"
             placeholder="Insira uma URL de imagem válida"
-            {...register('photoURL')}
+            {...register('photo')}
           />
         </label>
 

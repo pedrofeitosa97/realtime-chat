@@ -17,6 +17,7 @@ type AuthContextValues = {
   registerIn: (data: registerData) => void
   socketState: any
   setSocketState: React.Dispatch<React.SetStateAction<null>>
+  socketConnect: any
 }
 
 export const AuthContext = createContext<AuthContextValues>(
@@ -27,6 +28,16 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   const navigate = useNavigate()
   const { getCurrentUserRequest } = useRequests()
   const [socketState, setSocketState] = useState(null)
+
+  const socketConnect = async () => {
+    const socket: any = io('http://localhost:3000')
+    await socket.connect()
+    socket.emit('set_username', getCurrentUserRequest())
+    const userToken: any = localStorage.getItem('realtimechat:token')
+    const decodedToken: any = jwt_decode(userToken)
+    socket.emit('set_picture', decodedToken.photo)
+    setSocketState(socket)
+  }
 
   const signIn = async (data: LoginData) => {
     try {
@@ -39,14 +50,8 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         position: 'top-center',
         theme: 'dark',
       })
+      socketConnect()
       navigate('/dashboard')
-      const socket: any = io('http://localhost:3000')
-      await socket.connect()
-      socket.emit('set_username', getCurrentUserRequest())
-      const userToken: any = localStorage.getItem('realtimechat:token')
-      const decodedToken: any = jwt_decode(userToken)
-      socket.emit('set_picture', decodedToken.photo)
-      setSocketState(socket)
     } catch (error) {
       console.error(error)
       toast.error('Credenciais inválidas', {
@@ -60,6 +65,10 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       await api.post('/users', data)
       navigate('/')
+      toast.success('Usuário registrado com sucesso', {
+        position: 'top-center',
+        theme: 'dark',
+      })
     } catch (error) {
       console.error(error)
     }
@@ -67,7 +76,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
   return (
     <AuthContext.Provider
-      value={{ signIn, registerIn, socketState, setSocketState }}
+      value={{ signIn, registerIn, socketState, setSocketState, socketConnect }}
     >
       {children}
     </AuthContext.Provider>

@@ -11,9 +11,13 @@ import { io } from 'socket.io-client'
 
 const Dashboard = () => {
   const { register, handleSubmit, reset } = useForm()
-  const { socketState } = useAuth()
-  const { getMessagesList, createMessage, getCurrentUserIdRequest } =
-    useRequests()
+  const { socketState, setSocketState, socketConnect } = useAuth()
+  const {
+    getMessagesList,
+    createMessage,
+    getCurrentUserIdRequest,
+    getCurrentUserRequest,
+  } = useRequests()
   const navigate = useNavigate()
   const [messageList, setMessageList] = useState([])
   const [submit, setSubmit] = useState(false)
@@ -36,15 +40,9 @@ const Dashboard = () => {
     }
   }
 
-  const socketConnect = async () => {
-    const socket: any = io('http://localhost:3000')
-    await socket.connect()
-  }
-
   useEffect(() => {
     loadMessagesHistory()
     checkUserAuthenticated()
-    socketConnect()
     if (socketState) {
       socketState.on('receive_message', (data: any) => {
         setMessageList((current): any => [...current, data])
