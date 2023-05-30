@@ -7,6 +7,7 @@ import jwt_decode from 'jwt-decode'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import messageSound from '../../assets/message.mp3'
+import { io } from 'socket.io-client'
 
 const Dashboard = () => {
   const { register, handleSubmit, reset } = useForm()
@@ -35,9 +36,15 @@ const Dashboard = () => {
     }
   }
 
+  const socketConnect = async () => {
+    const socket: any = io('http://localhost:3000')
+    await socket.connect()
+  }
+
   useEffect(() => {
     loadMessagesHistory()
     checkUserAuthenticated()
+    socketConnect()
     if (socketState) {
       socketState.on('receive_message', (data: any) => {
         setMessageList((current): any => [...current, data])
