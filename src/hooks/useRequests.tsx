@@ -6,6 +6,7 @@ type decodedToken = {
   iat: number
   sub: string
   userName: string
+  photoURL: string
 }
 export const useRequests = () => {
   const getCurrentUserRequest = () => {

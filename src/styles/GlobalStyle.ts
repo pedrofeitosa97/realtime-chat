@@ -2,6 +2,10 @@ import { createGlobalStyle } from 'styled-components'
 
 export default createGlobalStyle`
    :root {
+    --var-simple-white: #ffffff;
+    --var-background: #224957;
+    --var-background-light: #55a1bc;
+    --var-button-green: #20DF7F;
     font-size: 60%;   
   }
 
@@ -32,7 +36,7 @@ export default createGlobalStyle`
   }
 
   body, input, button, textarea {
-    font-family: 'Inter';
+    font-family: 'Roboto';
     font-size: 1.6rem;
   }
 

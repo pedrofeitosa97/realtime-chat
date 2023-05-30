@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom'
 import { registerData } from '../pages/Register/validator'
 import { io } from 'socket.io-client'
 import { useRequests } from '../hooks/useRequests'
+import jwt_decode from 'jwt-decode'
+import { toast } from 'react-toastify'
 
 type AuthProviderProps = {
   children: ReactNode
@@ -33,13 +35,24 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
       api.defaults.headers.common.authorization = `Bearer ${token}`
       localStorage.setItem('realtimechat:token', token)
+      toast.success('Login realizado com sucesso!', {
+        position: 'top-center',
+        theme: 'dark',
+      })
       navigate('/dashboard')
       const socket: any = io('http://localhost:3000')
       await socket.connect()
       socket.emit('set_username', getCurrentUserRequest())
+      const userToken: any = localStorage.getItem('realtimechat:token')
+      const decodedToken: any = jwt_decode(userToken)
+      socket.emit('set_picture', decodedToken.photo)
       setSocketState(socket)
     } catch (error) {
       console.error(error)
+      toast.error('Credenciais inválidas', {
+        position: 'top-center',
+        theme: 'dark',
+      })
     }
   }
 
